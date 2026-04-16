@@ -4,19 +4,19 @@ import java.util.List;
 public class SalamanderSearch {
     public static void main(String[] args) {
         char[][] enclosure1 = {
-            {'.','.','.','.','.','.'},
-            {'W','.','W','W','.','.'},
-            {'.','.','W','.','.','W'},
-            {'f','W','.','.','W','.'},
-            {'W','.','W','s','.','.'},
+                { '.', '.', '.', '.', '.', '.' },
+                { 'W', '.', 'W', 'W', '.', '.' },
+                { '.', '.', 'W', '.', '.', 'W' },
+                { 'f', 'W', '.', '.', 'W', '.' },
+                { 'W', '.', 'W', 's', '.', '.' },
         };
 
         char[][] enclosure2 = {
-            {'.','.','.','.','.','.'},
-            {'W','W','W','W','s','.'},
-            {'.','.','W','.','.','W'},
-            {'f','W','.','.','W','.'},
-            {'W','.','W','.','.','.'},
+                { '.', '.', '.', '.', '.', '.' },
+                { 'W', 'W', 'W', 'W', 's', '.' },
+                { '.', '.', 'W', '.', '.', 'W' },
+                { 'f', 'W', '.', '.', 'W', '.' },
+                { 'W', '.', 'W', '.', '.', '.' },
         };
     }
 
@@ -41,9 +41,82 @@ public class SalamanderSearch {
      * 
      * @param enclosure
      * @return whether the salamander can reach the food
-     * @throws IllegalArgumentException if the enclosure does not contain a salamander
+     * @throws IllegalArgumentException if the enclosure does not contain a
+     *                                  salamander
      */
     public static boolean canReach(char[][] enclosure) {
+        int[] startLocation = salamanderLocation(enclosure);
+        boolean[][] visited = new boolean[enclosure.length][enclosure[0].length];
+        return canReach(startLocation, enclosure, visited);
+    }
+
+    private static boolean canReach(int[] currentLoc, char[][] enclosure, boolean[][] visited) {
+        int curR = currentLoc[0];
+        int curC = currentLoc[1];
+        if (enclosure[curR][curC] == 'f')
+            return true;
+        if (visited[curR][curC])
+            return false;
+        visited[curR][curC] = true;
+
+        for (int[] move : possibleMoves(enclosure, currentLoc)) {
+            if (canReach(move, enclosure, visited))
+                return true;
+
+        }
+
         return false;
+
+    }
+
+    public static List<int[]> possibleMoves(char[][] enclosure, int[] location) {
+        int curR = location[0];
+        int curC = location[1];
+
+        List<int[]> validLocs = new ArrayList<>();
+
+        // Up
+        int newR = curR - 1;
+        int newC = curC;
+        if (newR >= 0 && enclosure[newR][newC] != 'W') {
+            validLocs.add(new int[] { newR, newC });
+        }
+        // Down
+        newR = curR + 1;
+        newC = curC;
+        if (newR < enclosure.length && enclosure[newR][newC] != 'W') {
+            validLocs.add(new int[] { newR, newC });
+        }
+        // Right
+
+        newR = curR;
+        newC = curC + 1;
+        if (newC < enclosure[0].length && enclosure[newR][newC] != 'W') {
+            validLocs.add(new int[] { newR, newC });
+        }
+
+        // Left
+
+        newR = curR;
+        newC = curC - 1;
+        if (newC >= 0 && enclosure[newR][newC] != 'W') {
+            validLocs.add(new int[] { newR, newC });
+        }
+        return validLocs;
+
+    }
+
+    // return the [row, col location of the salamader]
+    // throw illegalArgument if ther eis no salamander
+    public static int[] salamanderLocation(char[][] enclosure) {
+        for (int row = 0; row < enclosure.length; row++) {
+            for (int col = 0; col < enclosure[0].length; col++) {
+
+                if (enclosure[row][col] == 's') {
+                    return new int[] { row, col };
+                }
+            }
+        }
+        throw new IllegalArgumentException("No salamander present");
     }
 }
